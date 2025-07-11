@@ -1,24 +1,21 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:18'  // or any preferred Node version
-        }
-    }
+    agent any
+
     stages {
         stage('Checkout') {
             steps {
-                 git branch: 'main', url: 'https://github.com/jyothi1-oss/dockerproject.git'
+                git branch: 'main', url: 'https://github.com/jyothi1-oss/dockerproject.git'
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Install Dependencies & Run Tests') {
+            agent {
+                docker {
+                    image 'node:18'
+                }
+            }
             steps {
                 sh 'npm install'
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
                 sh 'npm test'
             }
         }
@@ -39,7 +36,7 @@ pipeline {
     post {
         always {
             echo 'Cleaning up...'
-           // sh 'docker rm -f jenkins-node-app || true'
+            sh 'docker rm -f jenkins-node-app || true'
         }
     }
 }
